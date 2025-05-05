@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# macOS-Systemdateien
+.DS_Store
+
+# Virtual environments
+venv/
+.env/
+
+# PyInstaller
+*.spec
+
+# Logs
+*.log
+
+# IDEs/Editoren
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Test-/Debug-Dateien
+*.bak
+*.tmp
+
+# Images, falls nicht versioniert
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Output-Dateien
+*.exe
+*.app
