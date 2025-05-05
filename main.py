@@ -15,9 +15,10 @@ import random
 # TODO: Wörter pro Minute zählen
 # TODO: Keystrokes zählen
 # TODO: Falsche und Richtige Wörter anzeigen
+# TODO: Neustart Knopf mit Daten verknüpft
 
 # TODO: Countdown von 60 Sekunden runterzählen
-# TODO: Neustart Knopf Funktion fertigstellen
+# TODO: Neustart Knopf Funktion fertigstellen (Zeit)
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen
 
@@ -46,7 +47,7 @@ WOERTER = [
     "schnell", "langsam", "einfach", "schwer", "schön", "hässlich", "groß", "klein",
     "gut", "schlecht", "neu", "alt", "hell", "dunkel", "früh", "spät", "klar", "unscharf",
     "Arbeit", "Freunde", "Familie", "Haus", "Auto", "Wetter", "Internet", "Computer",
-    "Programm", "E-Mail", "Bildschirm", "Tastatur", "Maus", "Datei", "Ordner", "Text",
+    "Programm", "Wort", "Bildschirm", "Tastatur", "Maus", "Datei", "Ordner", "Text",
     "Schreiben", "Lesen", "Lernen", "Spielen", "Sport", "Musik", "Film", "Buch",
     "Welt", "Stadt", "Land", "Schule", "Universität", "Kollege", "Lehrer", "Kind",
     "Eltern", "Mutter", "Vater", "Bruder", "Schwester", "Hund", "Katze", "Zimmer",
@@ -152,7 +153,7 @@ class MainWindow(QMainWindow):
         self.user_input = SpaceDetectingLineEdit()
         self.user_input.textChanged.connect(self.check_word)
         self.user_input.setObjectName("input")
-        self.user_input.setPlaceholderText("Tippe die Wörter so schnell es geht nach...")
+        self.user_input.setPlaceholderText("Tippe die Wörter so schnell es geht ab...")
         self.user_input.setFixedWidth(400)
         self.user_input.setFixedHeight(50)
     
@@ -249,17 +250,32 @@ class MainWindow(QMainWindow):
         self.text_label.setText("Klicke auf 'Wörter generieren' um zu starten.")
         global current_word_list
         current_word_list = []
-        global current_row
-        current_row = 0
         global current_word 
         current_word = 0
         global current_text
         current_text = ""
+        global current_keystroke_count
+        current_keystroke_count = 0
+        global current_word_count_correct
+        current_word_count_correct = 0
+        global current_word_count_wrong
+        current_word_count_wrong = 0
+        global current_word_count_total
+        current_word_count_total = 0
+        global reset_happend
+        reset_happend = True
+
+        self.words_correct_label.setText(str(current_word_count_correct))
+        self.words_wrong_label.setText(str(current_word_count_wrong))
+        self.words_total_label.setText(str(current_word_count_total))
+        self.keystrokes_label.setText(str(current_keystroke_count))
+
         self.user_input.clear()
 
     def generate_words(self):
+        global reset_happend
+        reset_happend = False
         global current_word_list
-        global current_row
 
         current_word_list = random.sample(WOERTER, len(WOERTER))
         print(current_word_list)
@@ -283,18 +299,19 @@ class MainWindow(QMainWindow):
         self.highlight_grey()
 
     def check_word(self):
-        global current_keystroke_count
-        current_keystroke_count += 1
-        self.keystrokes_label.setText(str(current_keystroke_count))
+        if reset_happend == False:
+            global current_keystroke_count
+            current_keystroke_count += 1
+            self.keystrokes_label.setText(str(current_keystroke_count))
 
-        current_input = self.user_input.text()
-        current_input = current_input.lstrip()
-        input_length = len(current_input)
-        
-        if current_input == current_word_list[current_word][:input_length]:
-            self.highlight_green()
-        elif current_input != current_word_list[current_word][:input_length]:
-            self.highlight_red()
+            current_input = self.user_input.text()
+            current_input = current_input.lstrip()
+            input_length = len(current_input)
+            
+            if current_input == current_word_list[current_word][:input_length]:
+                self.highlight_green()
+            elif current_input != current_word_list[current_word][:input_length]:
+                self.highlight_red()
 
     def check_full_word(self):
         global current_keystroke_count
@@ -348,13 +365,13 @@ window.show()
 
 current_text = ""
 current_word_list = []
-current_row = 0
 current_word = 0
-
 current_word_count_total = 0
 current_word_count_correct = 0
 current_word_count_wrong = 0
 current_keystroke_count = 0
+
+reset_happend = True
 
 
 
