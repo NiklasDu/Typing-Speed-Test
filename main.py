@@ -17,10 +17,13 @@ import random
 # TODO: Falsche und Richtige Wörter anzeigen
 # TODO: Neustart Knopf mit Daten verknüpft
 
+# TODO: Leertaste am Ende von jedem Wort nicht mit markieren
+# TODO: Richtig und Falsch Menge grün und rot färben (bessere UX) 
 # TODO: Countdown von 60 Sekunden runterzählen
 # TODO: Neustart Knopf Funktion fertigstellen (Zeit)
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
-# TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen
+# TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
+#       unter Result Fenster auswählen, ob speichern soll oder nicht)
 
 # ------------------------------- Constants --------------------------------- #
 
@@ -78,9 +81,12 @@ class SpaceDetectingLineEdit(QLineEdit):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Space:
             global current_word
+            global current_keystroke_count
+            current_keystroke_count -= 1
 
             window.check_full_word()
             current_word = current_word + 1
+            window.user_input.clear()
             
             window.show_words()
             
@@ -146,12 +152,13 @@ class MainWindow(QMainWindow):
 
         self.text_label = QLabel("Klicke auf 'Wörter generieren' um zu starten.")
         self.text_label.setObjectName("text")
+        self.text_label.setTextFormat(Qt.TextFormat.RichText)
         self.text_label.setFixedHeight(100)
         self.text_label.setFixedWidth(710)
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
         self.user_input = SpaceDetectingLineEdit()
-        self.user_input.textChanged.connect(self.check_word)
+        self.user_input.textChanged.connect(self.show_words)
         self.user_input.setObjectName("input")
         self.user_input.setPlaceholderText("Tippe die Wörter so schnell es geht ab...")
         self.user_input.setFixedWidth(400)
@@ -280,23 +287,19 @@ class MainWindow(QMainWindow):
         current_word_list = random.sample(WOERTER, len(WOERTER))
         print(current_word_list)
 
-        for i in range(1,201):
-            if i % 6 == 0:
-                current_word_list[i-1] = current_word_list[i-1] + " \n"
-            else: 
-                current_word_list[i-1] = current_word_list[i-1] + " "
+        for i in range(1, len(WOERTER)):
+            current_word_list[i-1] = current_word_list[i-1] + " "
 
         self.show_words()
         
     def show_words(self):
         global current_text
         current_text = ""
-        self.user_input.clear()
 
         for word in current_word_list[current_word:]:
                 current_text = current_text + word
 
-        self.highlight_grey()
+        self.check_word()
 
     def check_word(self):
         if reset_happend == False:
@@ -307,8 +310,13 @@ class MainWindow(QMainWindow):
             current_input = self.user_input.text()
             current_input = current_input.lstrip()
             input_length = len(current_input)
+
+            print(f".{current_input}.")
+            print(f".{current_word_list[current_word][:input_length]}.")
             
-            if current_input == current_word_list[current_word][:input_length]:
+            if current_input == " " or current_input == "":
+                self.highlight_grey()
+            elif current_input == current_word_list[current_word][:input_length]:
                 self.highlight_green()
             elif current_input != current_word_list[current_word][:input_length]:
                 self.highlight_red()
@@ -339,19 +347,19 @@ class MainWindow(QMainWindow):
     def highlight_grey(self):
         global current_text
         current_text = current_text.replace(current_word_list[current_word], 
-                                            f'<span style="background-color: {WORD_HIGHLIGHT};">{current_word_list[current_word]}</span>')
+                                            f'<span style="background-color: {WORD_HIGHLIGHT};">{current_word_list[current_word].strip()}</span> ')
         self.text_label.setText(current_text) 
     
     def highlight_green(self):
         global current_text
         current_text = current_text.replace(current_word_list[current_word], 
-                                            f'<span style="background-color: {CORRECT_HIGHLIGHT};">{current_word_list[current_word]}</span>')
+                                            f'<span style="background-color: {CORRECT_HIGHLIGHT};">{current_word_list[current_word].strip()}</span> ')
         self.text_label.setText(current_text) 
 
     def highlight_red(self):
         global current_text
         current_text = current_text.replace(current_word_list[current_word], 
-                                            f'<span style="background-color: {WRONG_HIGHLIGHT};">{current_word_list[current_word]}</span>')
+                                            f'<span style="background-color: {WRONG_HIGHLIGHT};">{current_word_list[current_word].strip()}</span> ')
         self.text_label.setText(current_text) 
 
 
