@@ -19,12 +19,13 @@ import random
 # TODO: Leertaste am Ende von jedem Wort nicht mit markieren
 # TODO: Richtig und Falsch Menge grün und rot färben (bessere UX) 
 # TODO: Countdown von 60 Sekunden runterzählen
-
 # TODO: Reset Knopf Funktion fertigstellen (Zeit und Anzeige)
+# TODO: Allgemeine Fehlerbehebung
+
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
 #       unter Result Fenster auswählen, ob speichern soll oder nicht)
-# TODO: Allgemeine Fehlerbehebung
+
 
 # ------------------------------- Constants --------------------------------- #
 
