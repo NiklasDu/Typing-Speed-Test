@@ -21,11 +21,11 @@ import random
 # TODO: Countdown von 60 Sekunden runterzählen
 # TODO: Reset Knopf Funktion fertigstellen (Zeit und Anzeige)
 # TODO: Allgemeine Fehlerbehebung
-
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
+
+# TODO: Aktuelle WPM anzeigen, nach jedem Keystroke kalkulieren und anzeigen
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
 #       unter Result Fenster auswählen, ob speichern soll oder nicht)
-
 
 # ------------------------------- Constants --------------------------------- #
 
@@ -102,6 +102,71 @@ class SpaceDetectingLineEdit(QLineEdit):
             super().keyPressEvent(event)  # wichtig, damit der Text trotzdem erscheint
         else:
             print("Space is currently locked!")
+
+# ------------------------------- Result Window ------------------------------- #
+
+class ResultDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Ergebnis")
+        self.setup_ui()
+
+    def setup_ui(self):
+        # Labels
+        correct_result = QLabel(f"Richtige Wörter: {current_word_count_correct}")
+        correct_result.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        wrong_result = QLabel(f"Falsche Wörter: {current_word_count_wrong}")
+        wrong_result.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        wpm_count = QLabel(f"Wörter pro Minute: {current_keystroke_count / 5}")
+        wpm_count.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+        
+
+        # Buttons
+        save_btn = QPushButton("Speichern")
+        close_btn = QPushButton("Abbrechen")
+
+        save_btn.clicked.connect(self.accept)   # OK → gibt exec_() = QDialog.Accepted zurück
+        close_btn.clicked.connect(self.reject)   # Cancel → gibt exec_() = QDialog.Rejected zurück
+
+        # Layouts
+        layout = QVBoxLayout()
+        layout.addWidget(correct_result)
+        layout.addWidget(wrong_result)
+        layout.addWidget(wpm_count)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(save_btn)
+        button_layout.addWidget(close_btn)
+        layout.addLayout(button_layout)
+
+        self.setLayout(layout)
+
+        self.setFixedSize(QSize(300, 200))
+
+        self.setStyleSheet(f"""
+        QWidget {{
+            background-color: {BACKGROUND_COLOR};
+            color: {TEXT_COLOR};
+            font-family: Roboto;
+            font-size: 15px;
+        }}
+        QPushButton {{
+            background-color: {BUTTON_BACKGROUND};
+            color: {BUTTON_TEXT_COLOR};
+            border-radius: 8px;
+            padding: 8px;
+        }}
+        QPushButton:hover {{
+            background-color: {HIGHLIGHT_COLOR};
+        }}
+        QPushButton:pressed {{
+            background-color: #4C6A92;
+        }}
+        QLabel {{
+            font-size: 14px;
+            padding: 5px;
+        }}
+        """)
 
 # ------------------------------- Main Window --------------------------------- #
 
@@ -430,6 +495,14 @@ class MainWindow(QMainWindow):
         elif self.time_left <= 0:
             self.stop_timer()
             self.timer_label.setText("0:00")
+            dialog = ResultDialog()
+            result = dialog.exec()
+            if result == QDialog.DialogCode.Accepted:
+                print("Speichern gewählt.")
+            else:
+                print("Abgebrochen.")
+
+            
             
 
 
