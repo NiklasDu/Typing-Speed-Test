@@ -16,9 +16,9 @@ import random
 # TODO: Keystrokes zählen
 # TODO: Falsche und Richtige Wörter anzeigen
 # TODO: Neustart Knopf mit Daten verknüpft
-
 # TODO: Leertaste am Ende von jedem Wort nicht mit markieren
 # TODO: Richtig und Falsch Menge grün und rot färben (bessere UX) 
+
 # TODO: Countdown von 60 Sekunden runterzählen
 # TODO: Neustart Knopf Funktion fertigstellen (Zeit)
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
@@ -247,6 +247,12 @@ class MainWindow(QMainWindow):
         QLabel#timer, QLabel#timer_name, QLabel#words_name, QLabel#words_label, QLabel#correct_name, QLabel#correct_label,
         QLabel#wrong_name, QLabel#wrong_label, QLabel#keystrokes_name, QLabel#keystrokes_label {{
             font-size: 16px;
+        }}
+        QLabel#correct_label {{
+            color: #388E3C
+        }}
+        QLabel#wrong_label {{
+            color: #D32F2F
         }}
 
         """)
