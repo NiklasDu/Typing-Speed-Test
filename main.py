@@ -22,10 +22,12 @@ import random
 # TODO: Reset Knopf Funktion fertigstellen (Zeit und Anzeige)
 # TODO: Allgemeine Fehlerbehebung
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
-
 # TODO: Aktuelle WPM anzeigen, nach jedem Keystroke kalkulieren und anzeigen
+# TODO: Wörter Liste verbessern, Verben klein schreiben mehr Wörter
+
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
 #       unter Result Fenster auswählen, ob speichern soll oder nicht)
+# TODO: Diagramme erstellen, um zu sehen, ob man sich verbessert hat
 
 # ------------------------------- Constants --------------------------------- #
 
@@ -49,30 +51,36 @@ WOERTER = [
     "kein", "viele", "ein", "eine", "der", "die", "das", "mein", "dein", "unser",
     "dieser", "welcher", "jeder", "immer", "oft", "nie", "bald", "später", "heute",
     "gestern", "morgen", "jetzt", "hier", "dort", "oben", "unten", "drinnen", "draußen",
-    "schnell", "langsam", "einfach", "schwer", "schön", "hässlich", "groß", "klein",
-    "gut", "schlecht", "neu", "alt", "hell", "dunkel", "früh", "spät", "klar", "unscharf",
-    "Arbeit", "Freunde", "Familie", "Haus", "Auto", "Wetter", "Internet", "Computer",
-    "Programm", "Wort", "Bildschirm", "Tastatur", "Maus", "Datei", "Ordner", "Text",
-    "Schreiben", "Lesen", "Lernen", "Spielen", "Sport", "Musik", "Film", "Buch",
-    "Welt", "Stadt", "Land", "Schule", "Universität", "Kollege", "Lehrer", "Kind",
-    "Eltern", "Mutter", "Vater", "Bruder", "Schwester", "Hund", "Katze", "Zimmer",
-    "Fenster", "Tür", "Straße", "Telefon", "Kamera", "Reise", "Urlaub", "Zug", "Bus",
-    "Fahrrad", "Flugzeug", "Ziel", "Idee", "Gedanke", "Sprache", "Wort",
-    "Frage", "Antwort", "Name", "Adresse", "System", "Drucker", "Daten", "Fehler",
-    "Lösung", "Taste", "Link", "Button", "Seite", "Browser", "Bild", "Farbe", "Form",
-    "Größe", "Sicherheit", "Passwort", "Benutzer", "Download", "Upload", "Projekt",
-    "Nachricht", "Erfolg", "Plan", "Vertrag", "Papier", "Mail", "Server", "Update",
-    "Start", "Stopp", "Pause", "Klick", "Hinweis", "Tipp", "Anleitung", "Termin",
-    "Uhr", "Kalender", "Woche", "Tag", "Monat", "Jahr", "Sekunde", "Minute",
-    "Morgen", "Abend", "Mittag", "Wasser", "Saft", "Kaffee", "Tee", "Pizza", "Brot",
-    "Butter", "Preis", "Geld", "Euro", "Bank", "Konto", "Karte", "Zahlung", "Produkt",
-    "Bestellung", "Service", "Hilfe", "Test", "Check", "Einstellung",
-    "denken", "öffnen", "schließen", "spielen", "lesen", "schreiben", "lernen",
-    "fragen", "antworten", "sehen", "hören", "fühlen", "laufen", "gehen", "fahren",
-    "sitzen", "liegen", "stehen", "geben", "nehmen", "brauchen", "machen", "nutzen",
-    "arbeiten", "träumen", "planen", "glauben", "wünschen", "hoffen", "suchen",
-    "finden", "erklären", "vergessen", "erinnern", "beginnen", "enden"
+    "schnell", "langsam", "einfach", "schwer", "schön", "groß", "klein", "gut", "schlecht",
+    "neu", "alt", "hell", "dunkel", "früh", "spät", "klar", "unscharf", "Arbeit", "Freunde",
+    "Familie", "Haus", "Auto", "Wetter", "Internet", "Computer", "Programm", "Wort",
+    "Bildschirm", "Tastatur", "Maus", "Datei", "Ordner", "Text", "Sprache", "Frage",
+    "Antwort", "Name", "Adresse", "System", "Drucker", "Daten", "Fehler", "Lösung",
+    "Taste", "Link", "Button", "Seite", "Browser", "Bild", "Farbe", "Form", "Größe",
+    "Sicherheit", "Passwort", "Benutzer", "Download", "Upload", "Projekt", "Nachricht",
+    "Erfolg", "Plan", "Vertrag", "Papier", "Mail", "Server", "Update", "Start", "Stopp",
+    "Pause", "Klick", "Hinweis", "Tipp", "Anleitung", "Termin", "Uhr", "Kalender", "Woche",
+    "Tag", "Monat", "Jahr", "Sekunde", "Minute", "Morgen", "Abend", "Mittag", "Wasser",
+    "Saft", "Kaffee", "Tee", "Pizza", "Brot", "Butter", "Preis", "Geld", "Euro", "Bank",
+    "Konto", "Karte", "Zahlung", "Produkt", "Bestellung", "Service", "Hilfe", "Test",
+    "Check", "Einstellung", "Tisch", "Stuhl", "Lampe", "Boden", "Decke", "Wand", "Spiegel",
+    "Fenster", "Tür", "Straße", "Buch", "Zeitung", "Film", "Musik", "Sport", "Spiel",
+    "Reise", "Ziel", "Ort", "Welt", "Stadt", "Land", "Schule", "Universität", "Lehrer",
+    "Kind", "Eltern", "Mutter", "Vater", "Bruder", "Schwester", "Hund", "Katze", "Zimmer",
+    "denken", "öffnen", "schließen", "spielen", "lesen", "schreiben", "lernen", "fragen",
+    "antworten", "sehen", "hören", "fühlen", "laufen", "gehen", "fahren", "sitzen",
+    "liegen", "stehen", "geben", "nehmen", "brauchen", "machen", "nutzen", "arbeiten",
+    "träumen", "planen", "glauben", "wünschen", "hoffen", "suchen", "finden", "erklären",
+    "vergessen", "erinnern", "beginnen", "enden", "zeigen", "drücken", "senden", "empfangen",
+    "drucken", "rechnen", "messen", "reparieren", "testen", "kochen", "backen", "putzen",
+    "telefonieren", "reisen", "zahlen", "laufen", "sparen", "wechseln", "denken", "reden",
+    "schlafen", "träumen", "wecken", "essen", "trinken", "laufen", "springen", "fahren",
+    "fliegen", "bauen", "zeichnen", "malen", "fotografieren", "organisieren", "lernen",
+    "trainieren", "entspannen", "planen", "notieren", "üben", "kaufen", "verkaufen",
+    "bestellen", "suchen", "speichern", "löschen", "kopieren", "einfügen", "installieren",
+    "aktualisieren", "erstellen", "bearbeiten", "teilen", "verbinden", "trennen"
 ]
+
 
 # -------------------- Space Bar Function in LineEdit ------------------------ #
 
@@ -217,6 +225,15 @@ class MainWindow(QMainWindow):
         self.keystrokes_label.setFixedHeight(50)
         self.keystrokes_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
+        self.wpm_count_name = QLabel("WPM: ")
+        self.wpm_count_name.setObjectName("wpm_name")
+        self.wpm_count_name.setFixedHeight(50)
+        self.wpm_count_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        self.wpm_count_label = QLabel("0")
+        self.wpm_count_label.setObjectName("wpm_label")
+        self.wpm_count_label.setFixedHeight(50)
+        self.wpm_count_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+
         self.timer_name = QLabel("Timer: ")
         self.timer_name.setObjectName("timer_name")
         self.timer_name.setFixedHeight(50)
@@ -268,6 +285,8 @@ class MainWindow(QMainWindow):
         layout_three = QHBoxLayout()
         layout_three.addWidget(self.keystrokes_name)
         layout_three.addWidget(self.keystrokes_label)
+        layout_three.addWidget(self.wpm_count_name)
+        layout_three.addWidget(self.wpm_count_label)
         layout_three.addWidget(self.timer_name)
         layout_three.addWidget(self.timer_label)
         layout.addLayout(layout_three)
@@ -325,7 +344,7 @@ class MainWindow(QMainWindow):
             border-radius: 4px;
         }}
         QLabel#timer, QLabel#timer_name, QLabel#words_name, QLabel#words_label, QLabel#correct_name, QLabel#correct_label,
-        QLabel#wrong_name, QLabel#wrong_label, QLabel#keystrokes_name, QLabel#keystrokes_label {{
+        QLabel#wrong_name, QLabel#wrong_label, QLabel#keystrokes_name, QLabel#keystrokes_label, QLabel#wpm_label QLabel#wpm_name {{
             font-size: 16px;
         }}
         QLabel#correct_label {{
@@ -364,6 +383,8 @@ class MainWindow(QMainWindow):
         timer_stopped = False
         global space_locked 
         space_locked = True
+        global current_wpm
+        current_wpm = 0
 
         self.generate_words_btn.setEnabled(True) 
         self.text_label.setText("Klicke auf 'Wörter generieren' um zu starten.") 
@@ -371,6 +392,7 @@ class MainWindow(QMainWindow):
         self.words_wrong_label.setText(str(current_word_count_wrong))
         self.words_total_label.setText(str(current_word_count_total))
         self.keystrokes_label.setText(str(current_keystroke_count))
+        self.wpm_count_label.setText(str(current_wpm))
         self.user_input.clear()
 
     def generate_words(self):
@@ -401,6 +423,11 @@ class MainWindow(QMainWindow):
             current_keystroke_count -= 1
             self.start_timer()
             first_space = False
+        else:
+            global current_wpm
+            if self.time_left != 60 and self.time_left != 0:
+                current_wpm = round((current_keystroke_count / 5) * (60 / (60 - self.time_left)), 2)
+                self.wpm_count_label.setText(str(current_wpm))
 
         for word in current_word_list[current_word:]:
                 current_text = current_text + word
@@ -522,6 +549,7 @@ current_word_count_total = 0
 current_word_count_correct = 0
 current_word_count_wrong = 0
 current_keystroke_count = 0
+current_wpm = 0
 
 reset_happend = True
 first_space = True
