@@ -18,8 +18,8 @@ import random
 # TODO: Neustart Knopf mit Daten verknüpft
 # TODO: Leertaste am Ende von jedem Wort nicht mit markieren
 # TODO: Richtig und Falsch Menge grün und rot färben (bessere UX) 
-
 # TODO: Countdown von 60 Sekunden runterzählen
+
 # TODO: Reset Knopf Funktion fertigstellen (Zeit und Anzeige)
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
@@ -80,24 +80,27 @@ class SpaceDetectingLineEdit(QLineEdit):
         super().__init__(parent)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Space:
-            if timer_stopped == False:
-                global current_word
-                global first_word
-                global current_keystroke_count
-                current_keystroke_count -= 1
+        if space_locked == False:
+            if event.key() == Qt.Key.Key_Space:
+                if timer_stopped == False:
+                    global current_word
+                    global current_keystroke_count
+                    if first_space == True:
+                        current_keystroke_count -= 1
 
-                if first_word == True:
-                    window.start_timer()
+                    elif first_space == False:
+                        current_keystroke_count -= 2
 
-                if first_word == False:
-                    window.check_full_word()
-                    current_word = current_word + 1
-                    window.user_input.clear()
-                
-                window.show_words()
+                    if first_space == False:
+                        window.check_full_word()
+                        current_word = current_word + 1
+                        window.user_input.clear()
+                    
+                    window.show_words()
             
-        super().keyPressEvent(event)  # wichtig, damit der Text trotzdem erscheint
+            super().keyPressEvent(event)  # wichtig, damit der Text trotzdem erscheint
+        else:
+            print("Space is currently locked!")
 
 # ------------------------------- Main Window --------------------------------- #
 
@@ -158,7 +161,7 @@ class MainWindow(QMainWindow):
         self.timer_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
         self.time_left = 60
-        self.timer = QTimer()
+        self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_timer)
 
         self.text_label = QLabel("Klicke auf 'Wörter generieren' um zu starten.")
@@ -271,7 +274,6 @@ class MainWindow(QMainWindow):
     # ------------------------ Functions ---------------------------- #
 
     def restart_game(self):
-        self.text_label.setText("Klicke auf 'Wörter generieren' um zu starten.")
         global current_word_list
         current_word_list = []
         global current_word 
@@ -288,25 +290,32 @@ class MainWindow(QMainWindow):
         current_word_count_total = 0
         global reset_happend
         reset_happend = True
-        global first_word
-        first_word = True
+        global first_space
+        first_space = True
         self.stop_timer()
         self.timer_label.setText("1:00")
         global timer_stopped
         timer_stopped = False
-        self.user_input.setReadOnly(False)
+        global space_locked 
+        space_locked = True
 
+        self.generate_words_btn.setEnabled(True) 
+        self.text_label.setText("Klicke auf 'Wörter generieren' um zu starten.") 
         self.words_correct_label.setText(str(current_word_count_correct))
         self.words_wrong_label.setText(str(current_word_count_wrong))
         self.words_total_label.setText(str(current_word_count_total))
         self.keystrokes_label.setText(str(current_keystroke_count))
-
         self.user_input.clear()
 
     def generate_words(self):
         global reset_happend
         reset_happend = False
+        global space_locked
+        space_locked = False
         global current_word_list
+
+        self.user_input.setReadOnly(False)
+        self.generate_words_btn.setEnabled(False)
 
         current_word_list = random.sample(WOERTER, len(WOERTER))
         print(current_word_list)
@@ -320,12 +329,12 @@ class MainWindow(QMainWindow):
         global current_text
         current_text = ""
 
-        global first_word
-        if first_word == True:
+        global first_space
+        if first_space == True and space_locked == False:
             global current_keystroke_count
             current_keystroke_count -= 1
-
-        first_word = False
+            self.start_timer()
+            first_space = False
 
         for word in current_word_list[current_word:]:
                 current_text = current_text + word
@@ -334,7 +343,6 @@ class MainWindow(QMainWindow):
 
     def check_word(self):
         if reset_happend == False:
-            global timer_started
             global current_keystroke_count
             current_keystroke_count += 1
             self.keystrokes_label.setText(str(current_keystroke_count))
@@ -342,9 +350,6 @@ class MainWindow(QMainWindow):
             current_input = self.user_input.text()
             current_input = current_input.lstrip()
             input_length = len(current_input)
-
-            if current_input != " " or current_input != "":
-                timer_started = True
             
             if current_input == " " or current_input == "":
                 self.highlight_grey()
@@ -354,18 +359,21 @@ class MainWindow(QMainWindow):
                 self.highlight_red()
 
     def check_full_word(self):
-        global current_keystroke_count
-        current_keystroke_count -= 1
         global current_word_count_total
         global current_word_count_correct
         global current_word_count_wrong
+        global current_keystroke_count
 
         current_input = self.user_input.text()
         current_input = current_input.replace(" ", "")
 
         word_to_compare = current_word_list[current_word].replace(" ", "")
 
-        if current_input == word_to_compare:
+        if current_input == " " or current_input == "":
+            print("Empty Word submitted.")
+            if current_keystroke_count > 0:
+                current_keystroke_count -= 1
+        elif current_input == word_to_compare:
             current_word_count_total += 1
             current_word_count_correct += 1
         elif current_input != word_to_compare:
@@ -395,11 +403,20 @@ class MainWindow(QMainWindow):
         self.text_label.setText(current_text) 
 
     def start_timer(self):
+        print("Timer gestartet")
         self.time_left = 60
         self.timer.start(1000)
     
     def stop_timer(self):
+        print("Timer gestoppt.")
         self.timer.stop()
+        self.time_left = 60
+        global timer_stopped
+        timer_stopped = True
+        global space_locked
+        space_locked = True  
+        self.user_input.setReadOnly(True)
+        self.text_label.setText("Drücke 'Reset' um neu zu starten.")
 
     def update_timer(self):
         self.time_left -= 1
@@ -412,10 +429,7 @@ class MainWindow(QMainWindow):
         elif self.time_left <= 0:
             self.stop_timer()
             self.timer_label.setText("0:00")
-            global timer_stopped
-            timer_stopped = True
-            self.user_input.setReadOnly(True)
-            self.text_label.setText("Drücke 'Reset' um neu zu starten.")
+            
 
 
 
@@ -436,9 +450,9 @@ current_word_count_wrong = 0
 current_keystroke_count = 0
 
 reset_happend = True
-timer_started = False
-first_word = True
+first_space = True
 timer_stopped = False
+space_locked = True
 
 
 app.exec()
