@@ -45,7 +45,6 @@ from matplotlib.ticker import MultipleLocator
 # TODO: Loading Screen wenn App startet (SplashScreen)
 # TODO: Verschiedene Profile erstellen und zwischen ihnen wählen können
 #
-# TODO: andere Farben austesten
 # TODO: Code Refactoring
 
 # ------------------------------- Constants --------------------------------- #
@@ -57,6 +56,7 @@ BUTTON_TEXT_COLOR      = "#FFFFFF"  # Weiß – klassisch und kontrastreich
 BUTTON_PRESSED_COLOR   = "#4C6A92"  # Wenn Button gedrückt wird
 INPUT_BACKGROUND       = "#E5E9F0"  # Sanftes Hellgrau-Blau – ideal für Eingabefelder
 HIGHLIGHT_COLOR        = "#81A1C1"  # Helleres Blau – z. B. für Hover-Zustände
+CLICKED_COLOR          = "#4C6A92"  # # Wenn Button gedrückt wird
 BORDER_COLOR           = "#D8DEE9"  # Weiches Grau-Blau für unaufdringliche Rahmen
 WORD_HIGHLIGHT         = "#E0E0E0"  # Für noch nicht geprüfte oder aktuelle Wörter
 CORRECT_HIGHLIGHT      = "#C8E6C9"  # Für korrekt geschriebene Wörter
@@ -261,7 +261,7 @@ class ResultDialog(QDialog):
             background-color: {HIGHLIGHT_COLOR};
         }}
         QPushButton:pressed {{
-            background-color: #4C6A92;
+            background-color: {CLICKED_COLOR};
         }}
         QLabel {{
             font-size: 14px;
@@ -577,7 +577,7 @@ class MainWindow(QMainWindow):
             background-color: {HIGHLIGHT_COLOR};
         }}
         QPushButton:pressed {{
-            background-color: #4C6A92;
+            background-color: {CLICKED_COLOR};
         }}
         QLineEdit, QLineEdit#input, QLineEdit#new_user_input {{
             border: 1px solid {BORDER_COLOR};
