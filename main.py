@@ -1,7 +1,8 @@
 from PyQt6.QtCore import QSize, Qt, QDir, QTimer
 from PyQt6.QtWidgets import (QDialogButtonBox, QApplication, QDialog, QWidget, 
                              QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
-                             QHBoxLayout, QFileDialog, QStackedWidget, QSplashScreen)
+                             QHBoxLayout, QFileDialog, QStackedWidget, QSplashScreen, 
+                             QComboBox, QListView, QFrame)
 from PyQt6.QtGui import QPixmap
 import sys
 import random
@@ -41,10 +42,11 @@ from matplotlib.ticker import MultipleLocator
 #       (nur speicherbar, wenn 75 % der Worte richtig waren)
 #       Datum mit Zeit, WPM, KPM, Gesamt, Richtige, Falsche,
 # TODO: Diagramme erstellen, um zu sehen, ob man sich verbessert hat
-# TODO: Loading Screen wenn App startet
-
+# TODO: Loading Screen wenn App startet (SplashScreen)
 # TODO: Verschiedene Profile erstellen und zwischen ihnen wählen können
-
+#
+# TODO: andere Farben austesten
+# TODO: Code Refactoring
 
 # ------------------------------- Constants --------------------------------- #
 
@@ -99,6 +101,7 @@ WOERTER = [
 ]
 
 FILEPATH = "results.json"
+FILEPATH_USER = "user.json"
 
 # -------------------- Saving Results in CSV ------------------------ #
 
@@ -131,24 +134,27 @@ def save_result(wpm, kpm, total, correct, wrong, user):
 # -------------------- WPM Chart ------------------------ #
 
 class WPMChart(FigureCanvas):
-    def __init__(self, json_path):
+    def __init__(self, json_path, user):
         self.fig = Figure(figsize=(5, 4))
         self.fig.patch.set_facecolor(BACKGROUND_COLOR)
         super().__init__(self.fig)
         self.ax = self.fig.add_subplot(111)
-        self.plot_from_json(json_path)
+        self.plot_from_json(json_path, user)
 
-    def plot_from_json(self, json_path):
+    def plot_from_json(self, json_path, user):
         with open(json_path, 'r') as f:
             data = json.load(f)
+
+        print(user)
 
         # Berechne die höchsten WPM pro Tag
         wpm_per_day = defaultdict(float)
         for entry in data:
-            date = entry["date"]
-            wpm = entry["wpm"]
-            if wpm > wpm_per_day[date]:
-                wpm_per_day[date] = wpm
+            if entry.get("user") == user:
+                date = entry["date"]
+                wpm = entry["wpm"]
+                if wpm > wpm_per_day[date]:
+                    wpm_per_day[date] = wpm
 
         # Sortiere nach Datum
         sorted_dates = sorted(wpm_per_day.keys(), key=lambda d: datetime.strptime(d, "%Y-%m-%d"))
@@ -196,7 +202,7 @@ class SpaceDetectingLineEdit(QLineEdit):
             
             super().keyPressEvent(event)  # wichtig, damit der Text trotzdem erscheint
         else:
-            print("Space is currently locked!")
+            pass
 
 # ------------------------------- Result Window ------------------------------- #
 
@@ -280,7 +286,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("KeyTaps")
 
-        self.title_label = QLabel("Starte deinen Typing Speed Test jetzt!")
+        self.title_label = QLabel(f"Hallo {current_user}, starte jetzt mit deinem Test!")
         self.title_label.setObjectName("title")
         self.title_label.setFixedHeight(50)
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
@@ -312,7 +318,7 @@ class MainWindow(QMainWindow):
         self.words_wrong_label.setFixedHeight(50)
         self.words_wrong_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
-        self.keystrokes_name = QLabel("KPM: ")
+        self.keystrokes_name = QLabel("Klicks: ")
         self.keystrokes_name.setObjectName("keystrokes_name")
         self.keystrokes_name.setFixedHeight(50)
         self.keystrokes_name.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
@@ -373,6 +379,12 @@ class MainWindow(QMainWindow):
         self.statistic_btn.setFixedWidth(150)
         self.statistic_btn.setFixedHeight(50)
 
+        self.logout_btn = QPushButton("Ausloggen")
+        self.logout_btn.clicked.connect(self.show_login)
+        self.logout_btn.setFixedWidth(150)
+        self.logout_btn.setFixedHeight(50)
+
+
         # Layout Design
         layout = QVBoxLayout()
         layout.addWidget(self.title_label)
@@ -398,7 +410,10 @@ class MainWindow(QMainWindow):
         layout_four.addWidget(self.generate_words_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout_four.addWidget(self.restart_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout.addLayout(layout_four)
-        layout.addWidget(self.statistic_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout_five = QHBoxLayout()
+        layout_five.addWidget(self.statistic_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout_five.addWidget(self.logout_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout.addLayout(layout_five)
 
         layout.setContentsMargins(20,20,20,20)
         layout.setSpacing(20)
@@ -413,23 +428,20 @@ class MainWindow(QMainWindow):
         self.title_stats_label.setFixedHeight(50)
         self.title_stats_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
-        self.stats_chart = WPMChart(FILEPATH)
         
         self.home_btn = QPushButton("Zurück")
         self.home_btn.clicked.connect(self.show_home)
         self.home_btn.setFixedHeight(50)
         self.home_btn.setFixedWidth(200)
 
-        layout_stats = QVBoxLayout()
-        layout_stats.addWidget(self.title_stats_label)
-        layout_stats.addWidget(self.stats_chart)
-        layout_stats.addWidget(self.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        self.layout_stats = QVBoxLayout()
+        self.layout_stats.addWidget(self.title_stats_label)
 
-        layout_stats.setContentsMargins(20, 20, 20, 20)
-        layout_stats.setSpacing(20)
+        self.layout_stats.setContentsMargins(20, 20, 20, 20)
+        self.layout_stats.setSpacing(20)
 
         container_stats = QWidget()
-        container_stats.setLayout(layout_stats)
+        container_stats.setLayout(self.layout_stats)
 
         # Login Page
         self.title_login_label = QLabel("Wähle einen Benutzer aus:")
@@ -437,16 +449,50 @@ class MainWindow(QMainWindow):
         self.title_login_label.setFixedHeight(50)
         self.title_login_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
-        #Benutzer auswählen Funktion
+        self.user_selector = QComboBox()
+        self.user_selector.addItems(load_all_user())
+        self.user_selector.setFixedHeight(50)
+        self.user_selector.setFixedWidth(250)
+        self.user_selector.setView(QListView())
 
         self.login_btn = QPushButton("Anmelden")
         self.login_btn.clicked.connect(self.login)
         self.login_btn.setFixedHeight(50)
         self.login_btn.setFixedWidth(200)
 
+        self.line = QFrame()
+        self.line.setFrameShape(QFrame.Shape.HLine)
+        self.line.setStyleSheet("color: {BORDER_COLOR}; background-color: {BORDER_COLOR}; height: 1px;")
+        self.line.setFixedHeight(3) 
+        self.line.setFixedWidth(450)
+
+        self.new_user_label = QLabel("Kein passender Benutzer vorhanden, erstelle hier einen neuen:")
+        self.new_user_label.setObjectName("new_user_label")
+        self.new_user_label.setFixedHeight(75)
+        self.new_user_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+
+        self.new_user_input = QLineEdit()
+        self.new_user_input.setObjectName("new_user_input")
+        self.new_user_input.setPlaceholderText("Neuer Benutzername")
+        self.new_user_input.setMaxLength(20)
+        self.new_user_input.setFixedWidth(250)
+        self.new_user_input.setFixedHeight(50)
+
+        self.new_user_btn = QPushButton("Benutzer erstellen")
+        self.new_user_btn.clicked.connect(self.add_user_and_login)
+        self.new_user_btn.setFixedHeight(50)
+        self.new_user_btn.setFixedWidth(250)
+
         layout_login = QVBoxLayout()
         layout_login.addWidget(self.title_login_label)
+        layout_login.addWidget(self.user_selector, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout_login.addWidget(self.login_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout_login.addWidget(self.line, alignment=Qt.AlignmentFlag.AlignHCenter)
+        layout_login.addWidget(self.new_user_label)
+        layout_login_two = QHBoxLayout()
+        layout_login_two.addWidget(self.new_user_input)
+        layout_login_two.addWidget(self.new_user_btn)
+        layout_login.addLayout(layout_login_two)
 
         layout_login.setContentsMargins(20, 20, 20, 20)
         layout_login.setSpacing(20)
@@ -480,19 +526,66 @@ class MainWindow(QMainWindow):
             border-radius: 8px;
             padding: 8px;
         }}
+        QComboBox {{
+        border: 1px solid {BORDER_COLOR};
+        border-radius: 6px;
+        padding: 6px 24px 6px 8px;
+        background-color: #f8f9fa;
+        color: #2E3440;
+        font-size: 14px;
+        }}
+        QComboBox:hover {{
+            border: 1px solid #5E81AC;
+            background-color: #ffffff;
+        }}
+        QComboBox::drop-down {{
+            subcontrol-origin: padding;
+            subcontrol-position: top right;
+            width: 20px;
+            border-left: 1px solid {BORDER_COLOR};
+            background: transparent;
+        }}
+        QComboBox::down-arrow {{
+            image: url(down.png);
+            width: 12px;
+            height: 12px;
+        }}
+        QComboBox QAbstractItemView {{
+            background-color: #ffffff;
+            border: 1px solid {BORDER_COLOR};
+            padding: 4px;
+            outline: 0px;
+            selection-background-color: #5E81AC;
+            selection-color: #ffffff;
+            font-size: 14px;
+            show-decoration-selected: 1;
+            min-height: 32px;
+        }}
+        QComboBox QAbstractItemView::item {{
+            padding: 8px 12px;
+            height: 28px;
+            border: none;
+            background-color: #ffffff;
+            color: #2E3440; 
+        }}
+
+        QComboBox QAbstractItemView::item:hover {{
+            background-color: #D8DEE9;
+            color: #2E3440;
+        }}
         QPushButton:hover {{
             background-color: {HIGHLIGHT_COLOR};
         }}
         QPushButton:pressed {{
             background-color: #4C6A92;
         }}
-        QLineEdit {{
+        QLineEdit, QLineEdit#input, QLineEdit#new_user_input {{
             border: 1px solid {BORDER_COLOR};
             border-radius: 5px;
             padding: 5px;
             background: {INPUT_BACKGROUND};
         }}
-        QLabel#title, QLabel#title_stats {{
+        QLabel#title, QLabel#title_stats, QLabel#title_login {{
             font-size: 25px;
         }}
         QLabel#text {{
@@ -505,27 +598,77 @@ class MainWindow(QMainWindow):
         QLabel#wrong_name, QLabel#wrong_label, QLabel#keystrokes_name, QLabel#keystrokes_label, QLabel#wpm_label QLabel#wpm_name {{
             font-size: 16px;
         }}
+        QLabel#new_user_label {{
+            font-size: 18px;
+            margin-top: 20px;
+        }}
         QLabel#correct_label {{
             color: #388E3C
         }}
         QLabel#wrong_label {{
             color: #D32F2F
         }}
-
         """)
 
     # ------------------------ Functions ---------------------------- #
 
+    def refresh_statistics(self):
+        global first_time_open_stats
+        if first_time_open_stats == True:
+            self.stats_chart = WPMChart(FILEPATH, current_user)
+            self.layout_stats.addWidget(self.stats_chart)
+            self.layout_stats.addWidget(self.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+            
+            first_time_open_stats = False
+        else:
+            self.layout_stats.removeWidget(self.stats_chart)
+            self.layout_stats.removeWidget(self.home_btn)   
+            self.stats_chart = WPMChart(FILEPATH, current_user)
+            self.layout_stats.addWidget(self.stats_chart)
+            self.layout_stats.addWidget(self.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+
     def show_statistics(self):
+        self.refresh_statistics()
         self.stacked_widget.setCurrentIndex(1)
 
     def show_home(self):
         self.stacked_widget.setCurrentIndex(2)
         self.user_input.setFocus()
 
+    def show_login(self):
+        self.stacked_widget.setCurrentIndex(0)
+        global current_user
+        current_user = ""
+
+        self.restart_game()
+        
+
     def login(self):
+        user_to_login = self.user_selector.currentText()
+        global current_user
+        current_user = user_to_login
+
+        self.title_label.setText(f"Hallo {current_user}, starte jetzt mit deinem Test!")
+
         self.stacked_widget.setCurrentIndex(2)
         self.user_input.setFocus()
+        
+
+    def add_user_and_login(self):
+        new_user = self.new_user_input.text()
+        add_user(new_user)
+
+        global current_user
+        current_user = new_user
+
+        self.new_user_input.clear()
+        self.title_label.setText(f"Hallo {current_user}, starte jetzt mit deinem Test!")
+
+        self.stacked_widget.setCurrentIndex(2)
+        self.user_input.setFocus()
+
+        self.update_user_combobox()
+        self.refresh_statistics()
 
     def restart_game(self):
         global current_word_list
@@ -575,7 +718,6 @@ class MainWindow(QMainWindow):
         self.generate_words_btn.setEnabled(False)
 
         current_word_list = random.sample(WOERTER, len(WOERTER))
-        print(current_word_list)
 
         for i in range(1, len(WOERTER)):
             current_word_list[i-1] = current_word_list[i-1] + " "
@@ -694,15 +836,65 @@ class MainWindow(QMainWindow):
             dialog = ResultDialog()
             result = dialog.exec()
             if result == QDialog.DialogCode.Accepted:
-                print("Speichern gewählt.")
-                save_result(current_wpm, current_keystroke_count, current_word_count_total, current_word_count_correct, current_word_count_wrong, "User1")
+                
+                save_result(current_wpm, current_keystroke_count, current_word_count_total, current_word_count_correct, current_word_count_wrong, current_user)
             else:
-                print("Abgebrochen.")
+                pass
+    def update_user_combobox(self):
+        self.user_selector.clear()
+        if os.path.exists(FILEPATH_USER):
+            with open(FILEPATH_USER, "r") as file:
+                data = json.load(file)
+                usernames = [user["user"] for user in data]
+                self.user_selector.addItems(usernames)
+
+# ------------------------------ User Handling ----------------------------------- #
+
+def load_all_user(): 
+    
+    data = []
+
+    if os.path.exists(FILEPATH_USER):
+        with open(FILEPATH_USER, "r") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                pass
+    
+    all_user = []
+    
+    for entry in data:
+        all_user.append(entry["user"])
+
+    return all_user
+
+def add_user(user):
+    new_user = {
+        "user": user
+    }
+
+    data = []
+
+    if os.path.exists(FILEPATH_USER):
+        with open(FILEPATH_USER, "r") as file:
+            try:
+                data = json.load(file)
+            except json.JSONDecodeError:
+                pass
+    
+    data.append(new_user)
+
+    with open(FILEPATH_USER, "w") as file:
+        json.dump(data, file, indent=4)
+
+
 
 
 
 # ------------------------------- Program Loop ----------------------------------- #
 
+
+current_user = ""
 
 app = QApplication([])
 
@@ -731,5 +923,9 @@ reset_happened = True
 first_space = True
 timer_stopped = False
 space_locked = True   
+
+first_time_open_stats = True
+
+
 
 app.exec()
