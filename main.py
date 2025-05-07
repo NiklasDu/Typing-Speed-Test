@@ -1,7 +1,9 @@
 from PyQt6.QtCore import QSize, Qt, QDir, QTimer
 from PyQt6.QtWidgets import (QDialogButtonBox, QApplication, QDialog, QWidget, 
                              QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
-                             QHBoxLayout, QFileDialog, QStackedWidget)
+                             QHBoxLayout, QFileDialog, QStackedWidget, QSplashScreen)
+from PyQt6.QtGui import QPixmap
+import sys
 import random
 import json
 import os
@@ -10,6 +12,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from collections import defaultdict
 from matplotlib.ticker import MultipleLocator
+
 
 # ------------------------------- To Do's ----------------------------------- #
 
@@ -38,9 +41,10 @@ from matplotlib.ticker import MultipleLocator
 #       (nur speicherbar, wenn 75 % der Worte richtig waren)
 #       Datum mit Zeit, WPM, KPM, Gesamt, Richtige, Falsche,
 # TODO: Diagramme erstellen, um zu sehen, ob man sich verbessert hat
+# TODO: Loading Screen wenn App startet
 
 # TODO: Verschiedene Profile erstellen und zwischen ihnen wählen können
-# TODO: Loading Screen wenn App startet??
+
 
 # ------------------------------- Constants --------------------------------- #
 
@@ -259,6 +263,15 @@ class ResultDialog(QDialog):
         }}
         """)
 
+# ------------------------------- Start Animation --------------------------------- #
+
+class SplashScreen(QSplashScreen):
+    def __init__(self, pixmap):
+        super().__init__(pixmap)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        # self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+
 # ------------------------------- Main Window --------------------------------- #
 
 class MainWindow(QMainWindow):
@@ -417,14 +430,37 @@ class MainWindow(QMainWindow):
 
         container_stats = QWidget()
         container_stats.setLayout(layout_stats)
+
+        # Login Page
+        self.title_login_label = QLabel("Wähle einen Benutzer aus:")
+        self.title_login_label.setObjectName("title_login")
+        self.title_login_label.setFixedHeight(50)
+        self.title_login_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+
+        #Benutzer auswählen Funktion
+
+        self.login_btn = QPushButton("Anmelden")
+        self.login_btn.clicked.connect(self.login)
+        self.login_btn.setFixedHeight(50)
+        self.login_btn.setFixedWidth(200)
+
+        layout_login = QVBoxLayout()
+        layout_login.addWidget(self.title_login_label)
+        layout_login.addWidget(self.login_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        layout_login.setContentsMargins(20, 20, 20, 20)
+        layout_login.setSpacing(20)
+
+        container_login = QWidget()
+        container_login.setLayout(layout_login)
         
 
         # Pages
         self.stacked_widget = QStackedWidget()
-        self.stacked_widget.addWidget(container)
+        self.stacked_widget.addWidget(container_login)
         self.stacked_widget.addWidget(container_stats)
+        self.stacked_widget.addWidget(container)
         
-
         self.setFixedSize(QSize(750, 600))
 
         self.setCentralWidget(self.stacked_widget)
@@ -484,7 +520,12 @@ class MainWindow(QMainWindow):
         self.stacked_widget.setCurrentIndex(1)
 
     def show_home(self):
-        self.stacked_widget.setCurrentIndex(0)
+        self.stacked_widget.setCurrentIndex(2)
+        self.user_input.setFocus()
+
+    def login(self):
+        self.stacked_widget.setCurrentIndex(2)
+        self.user_input.setFocus()
 
     def restart_game(self):
         global current_word_list
@@ -658,18 +699,24 @@ class MainWindow(QMainWindow):
             else:
                 print("Abgebrochen.")
 
-            
-            
-
-
 
 
 # ------------------------------- Program Loop ----------------------------------- #
 
+
 app = QApplication([])
 
+
+pixmap = QPixmap("KeyTapsGPT3Trans.png").scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+splash = SplashScreen(pixmap)
+splash.show()
+
+QTimer.singleShot(2000, splash.close)
+
 window = MainWindow()
-window.show()
+
+QTimer.singleShot(2000, window.show)
+
 
 current_text = ""
 current_word_list = []
@@ -680,10 +727,9 @@ current_word_count_wrong = 0
 current_keystroke_count = 0
 current_wpm = 0
 
-reset_happend = True
+reset_happened = True
 first_space = True
 timer_stopped = False
-space_locked = True
-
+space_locked = True   
 
 app.exec()
