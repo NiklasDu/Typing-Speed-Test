@@ -1,11 +1,15 @@
 from PyQt6.QtCore import QSize, Qt, QDir, QTimer
 from PyQt6.QtWidgets import (QDialogButtonBox, QApplication, QDialog, QWidget, 
                              QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
-                             QHBoxLayout, QFileDialog)
+                             QHBoxLayout, QFileDialog, QStackedWidget)
 import random
 import json
 import os
 from datetime import datetime
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+from collections import defaultdict
+from matplotlib.ticker import MultipleLocator
 
 # ------------------------------- To Do's ----------------------------------- #
 
@@ -29,12 +33,12 @@ from datetime import datetime
 # TODO: Wörter Liste verbessern, Verben klein schreiben mehr Wörter
 # TODO: Input Feld Zeichen begrenzen (je nach längstem Wort (13 Buchstaben, auf 18 gesetzt))
 # TODO: Icon für die App erstellen
-
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
 #       unter Result Fenster auswählen, ob speichern soll oder nicht)
 #       (nur speicherbar, wenn 75 % der Worte richtig waren)
 #       Datum mit Zeit, WPM, KPM, Gesamt, Richtige, Falsche,
 # TODO: Diagramme erstellen, um zu sehen, ob man sich verbessert hat
+
 # TODO: Verschiedene Profile erstellen und zwischen ihnen wählen können
 # TODO: Loading Screen wenn App startet??
 
@@ -119,6 +123,47 @@ def save_result(wpm, kpm, total, correct, wrong, user):
 
     with open(FILEPATH, "w") as f:
         json.dump(data, f, indent=4)
+
+# -------------------- WPM Chart ------------------------ #
+
+class WPMChart(FigureCanvas):
+    def __init__(self, json_path):
+        self.fig = Figure(figsize=(5, 4))
+        self.fig.patch.set_facecolor(BACKGROUND_COLOR)
+        super().__init__(self.fig)
+        self.ax = self.fig.add_subplot(111)
+        self.plot_from_json(json_path)
+
+    def plot_from_json(self, json_path):
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+
+        # Berechne die höchsten WPM pro Tag
+        wpm_per_day = defaultdict(float)
+        for entry in data:
+            date = entry["date"]
+            wpm = entry["wpm"]
+            if wpm > wpm_per_day[date]:
+                wpm_per_day[date] = wpm
+
+        # Sortiere nach Datum
+        sorted_dates = sorted(wpm_per_day.keys(), key=lambda d: datetime.strptime(d, "%Y-%m-%d"))
+        sorted_wpm = [wpm_per_day[date] for date in sorted_dates]
+
+        # Zeichne das Diagramm
+        self.ax.clear()
+        self.ax.plot(sorted_dates, sorted_wpm, marker='o', color=f'{BUTTON_BACKGROUND}')
+        self.ax.set_title("Höchste WPM pro Tag")
+        self.ax.set_xlabel("Datum")
+        self.ax.set_ylabel("WPM")
+        self.ax.tick_params(axis='x', rotation=45)  # Datumseinteilung rotieren
+        self.ax.yaxis.set_major_locator(MultipleLocator(10))
+        self.ax.grid(True)
+
+        self.ax.set_ylim(0, 140)
+
+        self.fig.autofmt_xdate()
+        self.draw()
 
 # -------------------- Space Bar Function in LineEdit ------------------------ #
 
@@ -310,6 +355,11 @@ class MainWindow(QMainWindow):
         self.restart_btn.setFixedWidth(200)
         self.restart_btn.setFixedHeight(50)
 
+        self.statistic_btn = QPushButton("Statistiken")
+        self.statistic_btn.clicked.connect(self.show_statistics)
+        self.statistic_btn.setFixedWidth(150)
+        self.statistic_btn.setFixedHeight(50)
+
         # Layout Design
         layout = QVBoxLayout()
         layout.addWidget(self.title_label)
@@ -335,6 +385,8 @@ class MainWindow(QMainWindow):
         layout_four.addWidget(self.generate_words_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout_four.addWidget(self.restart_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout.addLayout(layout_four)
+        layout.addWidget(self.statistic_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+
         layout.setContentsMargins(20,20,20,20)
         layout.setSpacing(20)
 
@@ -342,9 +394,40 @@ class MainWindow(QMainWindow):
         container = QWidget()    
         container.setLayout(layout)
 
-        self.setFixedSize(QSize(750, 500))
+        # Statistic Page 
+        self.title_stats_label = QLabel("Statistiken")
+        self.title_stats_label.setObjectName("title_stats")
+        self.title_stats_label.setFixedHeight(50)
+        self.title_stats_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
-        self.setCentralWidget(container)
+        self.stats_chart = WPMChart(FILEPATH)
+        
+        self.home_btn = QPushButton("Zurück")
+        self.home_btn.clicked.connect(self.show_home)
+        self.home_btn.setFixedHeight(50)
+        self.home_btn.setFixedWidth(200)
+
+        layout_stats = QVBoxLayout()
+        layout_stats.addWidget(self.title_stats_label)
+        layout_stats.addWidget(self.stats_chart)
+        layout_stats.addWidget(self.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+
+        layout_stats.setContentsMargins(20, 20, 20, 20)
+        layout_stats.setSpacing(20)
+
+        container_stats = QWidget()
+        container_stats.setLayout(layout_stats)
+        
+
+        # Pages
+        self.stacked_widget = QStackedWidget()
+        self.stacked_widget.addWidget(container)
+        self.stacked_widget.addWidget(container_stats)
+        
+
+        self.setFixedSize(QSize(750, 600))
+
+        self.setCentralWidget(self.stacked_widget)
 
         # ------------------------ Styling ---------------------------- #
 
@@ -373,7 +456,7 @@ class MainWindow(QMainWindow):
             padding: 5px;
             background: {INPUT_BACKGROUND};
         }}
-        QLabel#title {{
+        QLabel#title, QLabel#title_stats {{
             font-size: 25px;
         }}
         QLabel#text {{
@@ -396,6 +479,12 @@ class MainWindow(QMainWindow):
         """)
 
     # ------------------------ Functions ---------------------------- #
+
+    def show_statistics(self):
+        self.stacked_widget.setCurrentIndex(1)
+
+    def show_home(self):
+        self.stacked_widget.setCurrentIndex(0)
 
     def restart_game(self):
         global current_word_list
