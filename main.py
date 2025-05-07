@@ -844,8 +844,10 @@ class MainWindow(QMainWindow):
             dialog = ResultDialog()
             result = dialog.exec()
             if result == QDialog.DialogCode.Accepted:
-                
-                save_result(current_wpm, current_keystroke_count, current_word_count_total, current_word_count_correct, current_word_count_wrong, current_user)
+                number_to_make_saving_possible = current_word_count_total * 0.75
+                if current_word_count_correct >= number_to_make_saving_possible:
+                    print("Saved")
+                    save_result(current_wpm, current_keystroke_count, current_word_count_total, current_word_count_correct, current_word_count_wrong, current_user)
             else:
                 pass
     def update_user_combobox(self):

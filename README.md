@@ -17,8 +17,7 @@ Ob zum Trainieren, Vergleichen oder einfach aus Spaß – hier kommt dein neues 
   - Richtige/Falsche Wörter
 - 📈 **Resultat-Dialog nach jedem Run** mit Statistiken
 - 💾 **Highscore-Speicherung (CSV)** – optional, bei ≥ 75 % korrekter Eingaben
-- 🧑‍💻 **Mehrere Farbthemes wählbar**
-- 👤 **Profilwahl (in Arbeit)**
+- 👤 **Profilwahl**ß
 - 🎯 **Ziel: besser werden, nicht nur schneller tippen**
 
 ---
