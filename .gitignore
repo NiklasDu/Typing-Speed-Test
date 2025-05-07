@@ -34,10 +34,11 @@ venv/
 # Images, falls nicht versioniert
 *.jpg
 *.jpeg
-*.png
+
 *.gif
 
 # Output-Dateien
 *.exe
 *.app
 results.json
+user.json

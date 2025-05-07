@@ -100,8 +100,8 @@ WOERTER = [
     "aktualisieren", "erstellen", "bearbeiten", "teilen", "verbinden", "trennen"
 ]
 
-FILEPATH = "results.json"
-FILEPATH_USER = "user.json"
+FILEPATH = "db/results.json"
+FILEPATH_USER = "db/user.json"
 
 # -------------------- Saving Results in CSV ------------------------ #
 
@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("KeyTaps")
+        self.setWindowTitle("KeyTap")
 
         self.title_label = QLabel(f"Hallo {current_user}, starte jetzt mit deinem Test!")
         self.title_label.setObjectName("title")
@@ -444,6 +444,13 @@ class MainWindow(QMainWindow):
         container_stats.setLayout(self.layout_stats)
 
         # Login Page
+        self.logo_label = QLabel(self)
+        pixmap_logo = QPixmap("assets/KeyTapsGPT3Trans.png")
+        scaled_pixmap_logo = pixmap_logo.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        self.logo_label.setPixmap(scaled_pixmap_logo)
+        self.logo_label.setFixedHeight(80)
+        self.logo_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
+
         self.title_login_label = QLabel("Wähle einen Benutzer aus:")
         self.title_login_label.setObjectName("title_login")
         self.title_login_label.setFixedHeight(50)
@@ -484,6 +491,7 @@ class MainWindow(QMainWindow):
         self.new_user_btn.setFixedWidth(250)
 
         layout_login = QVBoxLayout()
+        layout_login.addWidget(self.logo_label)
         layout_login.addWidget(self.title_login_label)
         layout_login.addWidget(self.user_selector, alignment=Qt.AlignmentFlag.AlignHCenter)
         layout_login.addWidget(self.login_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
@@ -546,7 +554,7 @@ class MainWindow(QMainWindow):
             background: transparent;
         }}
         QComboBox::down-arrow {{
-            image: url(down.png);
+            image: url(assets/down.png);
             width: 12px;
             height: 12px;
         }}
@@ -899,7 +907,7 @@ current_user = ""
 app = QApplication([])
 
 
-pixmap = QPixmap("KeyTapsGPT3Trans.png").scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+pixmap = QPixmap("assets/KeyTapsGPT3Trans.png").scaled(400, 400, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
 splash = SplashScreen(pixmap)
 splash.show()
 

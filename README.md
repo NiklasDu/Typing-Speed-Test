@@ -25,6 +25,6 @@ Ob zum Trainieren, Vergleichen oder einfach aus Spaß – hier kommt dein neues 
 
 ## 📷 Vorschau
 
-![Screenshot der App](screenshot_app.png)
+![Screenshot der App](assets/screenshot_app.png)
 
 ---
