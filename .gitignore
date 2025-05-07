@@ -12,7 +12,7 @@ dist/
 .DS_Store
 
 # Virtual environments
-venv/
+.venv/
 .env/
 
 # PyInstaller
