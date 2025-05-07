@@ -40,3 +40,4 @@ venv/
 # Output-Dateien
 *.exe
 *.app
+results.json

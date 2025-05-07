@@ -3,6 +3,9 @@ from PyQt6.QtWidgets import (QDialogButtonBox, QApplication, QDialog, QWidget,
                              QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
                              QHBoxLayout, QFileDialog)
 import random
+import json
+import os
+from datetime import datetime
 
 # ------------------------------- To Do's ----------------------------------- #
 
@@ -24,10 +27,16 @@ import random
 # TODO: Result Fenster öffnen nach einem Run, als QDialog
 # TODO: Aktuelle WPM anzeigen, nach jedem Keystroke kalkulieren und anzeigen
 # TODO: Wörter Liste verbessern, Verben klein schreiben mehr Wörter
+# TODO: Input Feld Zeichen begrenzen (je nach längstem Wort (13 Buchstaben, auf 18 gesetzt))
+# TODO: Icon für die App erstellen
 
 # TODO: Record über alle Ergebnisse in CSV Speichern und Highscore anzeigen (
 #       unter Result Fenster auswählen, ob speichern soll oder nicht)
+#       (nur speicherbar, wenn 75 % der Worte richtig waren)
+#       Datum mit Zeit, WPM, KPM, Gesamt, Richtige, Falsche,
 # TODO: Diagramme erstellen, um zu sehen, ob man sich verbessert hat
+# TODO: Verschiedene Profile erstellen und zwischen ihnen wählen können
+# TODO: Loading Screen wenn App startet??
 
 # ------------------------------- Constants --------------------------------- #
 
@@ -81,6 +90,35 @@ WOERTER = [
     "aktualisieren", "erstellen", "bearbeiten", "teilen", "verbinden", "trennen"
 ]
 
+FILEPATH = "results.json"
+
+# -------------------- Saving Results in CSV ------------------------ #
+
+def save_result(wpm, kpm, total, correct, wrong, user):
+    new_result = {
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "time": datetime.now().strftime("%H:%M"),
+        "wpm": round(wpm, 2),
+        "kpm": kpm,
+        "total": total,
+        "correct": correct,
+        "wrong": wrong,
+        "user": user
+    }
+
+    data = []
+
+    if os.path.exists(FILEPATH):
+        with open(FILEPATH, "r") as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                pass
+    
+    data.append(new_result)
+
+    with open(FILEPATH, "w") as f:
+        json.dump(data, f, indent=4)
 
 # -------------------- Space Bar Function in LineEdit ------------------------ #
 
@@ -182,7 +220,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Typing Speed Test")
+        self.setWindowTitle("KeyTaps")
 
         self.title_label = QLabel("Starte deinen Typing Speed Test jetzt!")
         self.title_label.setObjectName("title")
@@ -258,6 +296,7 @@ class MainWindow(QMainWindow):
         self.user_input.textChanged.connect(self.show_words)
         self.user_input.setObjectName("input")
         self.user_input.setPlaceholderText("Tippe die Wörter so schnell es geht ab...")
+        self.user_input.setMaxLength(18)
         self.user_input.setFixedWidth(400)
         self.user_input.setFixedHeight(50)
     
@@ -526,6 +565,7 @@ class MainWindow(QMainWindow):
             result = dialog.exec()
             if result == QDialog.DialogCode.Accepted:
                 print("Speichern gewählt.")
+                save_result(current_wpm, current_keystroke_count, current_word_count_total, current_word_count_correct, current_word_count_wrong, "User1")
             else:
                 print("Abgebrochen.")
 
