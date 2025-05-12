@@ -53,9 +53,8 @@ app.exec()
 # TODO: Diagramme erstellen, um zu sehen, ob man sich verbessert hat
 # TODO: Loading Screen wenn App startet (SplashScreen)
 # TODO: Verschiedene Profile erstellen und zwischen ihnen wählen können
-
 # TODO: Code Refactoring
         # TODO: Timer und WPM laufen wieder 
         # TODO: Beim erneuten Start geht leerzeile nicht mehr zum nächsten Wort.
-        
         # TODO: lambda entfernen und in jeder Klasse state referenzieren
+# TODO: 

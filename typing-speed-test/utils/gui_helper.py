@@ -65,28 +65,20 @@ class SpaceDetectingLineEdit(QLineEdit):
 
     def keyPressEvent(self, event):
         if not self.view.state.space_locked:
-            print("0")
             if event.key() == Qt.Key.Key_Space:
-                print("1")
-                # if not self.view.state.timer_stopped:
-                #     print("2")
                 if self.view.state.first_space:
                     self.state.current_keystroke_count -= 1
                     if self.state.current_keystroke_count < 0:
                         self.state.current_keystroke_count = 0
                 else:
-                    print("4")
                     self.state.current_keystroke_count -= 2
-                    self.game_logic.check_full_word(self.state)
+                    self.game_logic.check_full_word()
                     self.state.current_word = self.state.current_word + 1
                     self.view.user_input.clear()
-                    print("5")
-                    self.game_logic.show_words(self.state)
-            print("6")
+                    self.game_logic.show_words()
             super().keyPressEvent(event)  # wichtig, damit der Text trotzdem erscheint
         else:
-            print("7")
-            # pass # Falls space_locked aktiv ist, keine Aktion
+            pass # Falls space_locked aktiv ist, keine Aktion
 
 # ------------------------------- Result Window ------------------------------- #
 

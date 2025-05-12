@@ -3,116 +3,117 @@ from utils.timer import Timer
 import random
 
 class GameLogic():
-    def __init__(self, view, timer):
+    def __init__(self, view, timer,  state):
         self.view = view
         self.timer = timer
+        self.state = state
 
-    def restart_game(self, state):
-        state.current_word_list = []
-        state.current_word = 0
-        state.current_text = ""
-        state.current_keystroke_count = 0
-        state.current_word_count_correct = 0
-        state.current_word_count_wrong = 0
-        state.current_word_count_total = 0
-        state.reset_happend = True
-        state.first_space = True
-        state.timer_stopped = False
-        state.space_locked = True
-        state.current_wpm = 0
+    def restart_game(self):
+        self.state.current_word_list = []
+        self.state.current_word = 0
+        self.state.current_text = ""
+        self.state.current_keystroke_count = 0
+        self.state.current_word_count_correct = 0
+        self.state.current_word_count_wrong = 0
+        self.state.current_word_count_total = 0
+        self.state.reset_happend = True
+        self.state.first_space = True
+        self.state.timer_stopped = False
+        self.state.space_locked = True
+        self.state.current_wpm = 0
 
-        self.timer.stop_timer(state)
+        self.timer.stop_timer()
 
         self.view.timer_label.setText("1:00")
         self.view.generate_words_btn.setEnabled(True) 
         self.view.text_label.setText("Klicke auf 'Wörter generieren' um zu starten.") 
-        self.view.words_correct_label.setText(str(state.current_word_count_correct))
-        self.view.words_wrong_label.setText(str(state.current_word_count_wrong))
-        self.view.words_total_label.setText(str(state.current_word_count_total))
-        self.view.keystrokes_label.setText(str(state.current_keystroke_count))
-        self.view.wpm_count_label.setText(str(state.current_wpm))
+        self.view.words_correct_label.setText(str(self.state.current_word_count_correct))
+        self.view.words_wrong_label.setText(str(self.state.current_word_count_wrong))
+        self.view.words_total_label.setText(str(self.state.current_word_count_total))
+        self.view.keystrokes_label.setText(str(self.state.current_keystroke_count))
+        self.view.wpm_count_label.setText(str(self.state.current_wpm))
         self.view.user_input.clear()
 
-    def generate_words(self, state):
-        state.reset_happend = False
-        state.space_locked = False
+    def generate_words(self):
+        self.state.reset_happend = False
+        self.state.space_locked = False
 
         self.view.user_input.setReadOnly(False)
         self.view.generate_words_btn.setEnabled(False)
 
-        state.current_word_list = random.sample(WOERTER, len(WOERTER))
+        self.state.current_word_list = random.sample(WOERTER, len(WOERTER))
 
         for i in range(1, len(WOERTER)):
-            state.current_word_list[i-1] = state.current_word_list[i-1] + " "
+            self.state.current_word_list[i-1] = self.state.current_word_list[i-1] + " "
 
         self.view.text_label.setText("Drücke 'Leertaste' um zu starten.")
         
-    def show_words(self, state):
-        state.current_text = ""
+    def show_words(self):
+        self.state.current_text = ""
 
-        if state.first_space == True and state.space_locked == False:
-            state.current_keystroke_count -= 1
+        if self.state.first_space == True and self.state.space_locked == False:
+            self.state.current_keystroke_count -= 1
             self.timer.start_timer()
-            state.first_space = False
+            self.state.first_space = False
         else:
             if self.timer.time_left != 60 and self.timer.time_left != 0:
-                current_wpm = round((state.current_keystroke_count / 5) * (60 / (60 - self.timer.time_left)), 2)
-                state.current_wpm = current_wpm
-                self.view.wpm_count_label.setText(str(state.current_wpm))
+                current_wpm = round((self.state.current_keystroke_count / 5) * (60 / (60 - self.timer.time_left)), 2)
+                self.state.current_wpm = current_wpm
+                self.view.wpm_count_label.setText(str(self.state.current_wpm))
 
-        for word in state.current_word_list[state.current_word:]:
-                state.current_text = state.current_text + word
+        for word in self.state.current_word_list[self.state.current_word:]:
+                self.state.current_text = self.state.current_text + word
 
-        self.check_word(state)
+        self.check_word()
 
-    def check_word(self, state):
-        if not state.reset_happend:
-            state.current_keystroke_count += 1
-            self.view.keystrokes_label.setText(str(state.current_keystroke_count))
+    def check_word(self):
+        if not self.state.reset_happend:
+            self.state.current_keystroke_count += 1
+            self.view.keystrokes_label.setText(str(self.state.current_keystroke_count))
 
             current_input = self.view.user_input.text()
             current_input = current_input.lstrip()
             input_length = len(current_input)
             
             if current_input == " " or current_input == "":
-                self.highlight_grey(state)
-            elif current_input == state.current_word_list[state.current_word][:input_length]:
-                self.highlight_green(state)
-            elif current_input != state.current_word_list[state.current_word][:input_length]:
-                self.highlight_red(state)
+                self.highlight_grey()
+            elif current_input == self.state.current_word_list[self.state.current_word][:input_length]:
+                self.highlight_green()
+            elif current_input != self.state.current_word_list[self.state.current_word][:input_length]:
+                self.highlight_red()
 
-    def check_full_word(self, state):
+    def check_full_word(self):
         current_input = self.view.user_input.text()
         current_input = current_input.replace(" ", "")
 
-        word_to_compare = state.current_word_list[state.current_word].replace(" ", "")
+        word_to_compare = self.state.current_word_list[self.state.current_word].replace(" ", "")
 
         if current_input == " " or current_input == "":
             print("Empty Word submitted.")
-            if state.current_keystroke_count > 0:
-                state.current_keystroke_count -= 1
+            if self.state.current_keystroke_count > 0:
+                self.state.current_keystroke_count -= 1
         elif current_input == word_to_compare:
-            state.current_word_count_total += 1
-            state.current_word_count_correct += 1
+            self.state.current_word_count_total += 1
+            self.state.current_word_count_correct += 1
         elif current_input != word_to_compare:
-            state.current_word_count_total += 1
-            state.current_word_count_wrong += 1
+            self.state.current_word_count_total += 1
+            self.state.current_word_count_wrong += 1
         
-        self.view.words_correct_label.setText(str(state.current_word_count_correct))
-        self.view.words_wrong_label.setText(str(state.current_word_count_wrong))
-        self.view.words_total_label.setText(str(state.current_word_count_total))
+        self.view.words_correct_label.setText(str(self.state.current_word_count_correct))
+        self.view.words_wrong_label.setText(str(self.state.current_word_count_wrong))
+        self.view.words_total_label.setText(str(self.state.current_word_count_total))
 
-    def highlight_grey(self, state):
-        state.current_text = state.current_text.replace(state.current_word_list[state.current_word], 
-                                            f'<span style="background-color: {WORD_HIGHLIGHT};">{state.current_word_list[state.current_word].strip()}</span> ')
-        self.view.text_label.setText(state.current_text) 
+    def highlight_grey(self):
+        self.state.current_text = self.state.current_text.replace(self.state.current_word_list[self.state.current_word], 
+                                            f'<span style="background-color: {WORD_HIGHLIGHT};">{self.state.current_word_list[self.state.current_word].strip()}</span> ')
+        self.view.text_label.setText(self.state.current_text) 
     
-    def highlight_green(self,state):
-        state.current_text = state.current_text.replace(state.current_word_list[state.current_word], 
-                                            f'<span style="background-color: {CORRECT_HIGHLIGHT};">{state.current_word_list[state.current_word].strip()}</span> ')
-        self.view.text_label.setText(state.current_text) 
+    def highlight_green(self):
+        self.state.current_text = self.state.current_text.replace(self.state.current_word_list[self.state.current_word], 
+                                            f'<span style="background-color: {CORRECT_HIGHLIGHT};">{self.state.current_word_list[self.state.current_word].strip()}</span> ')
+        self.view.text_label.setText(self.state.current_text) 
 
-    def highlight_red(self, state):
-        state.current_text = state.current_text.replace(state.current_word_list[state.current_word], 
-                                            f'<span style="background-color: {WRONG_HIGHLIGHT};">{state.current_word_list[state.current_word].strip()}</span> ')
-        self.view.text_label.setText(state.current_text) 
+    def highlight_red(self):
+        self.state.current_text = self.state.current_text.replace(self.state.current_word_list[self.state.current_word], 
+                                            f'<span style="background-color: {WRONG_HIGHLIGHT};">{self.state.current_word_list[self.state.current_word].strip()}</span> ')
+        self.view.text_label.setText(self.state.current_text) 

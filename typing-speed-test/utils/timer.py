@@ -15,11 +15,11 @@ class Timer(QTimer):
         self.time_left = 60
         self.start(1000)
     
-    def stop_timer(self, state):
+    def stop_timer(self):
         self.stop()
         self.time_left = 60
-        state.timer_stopped = True
-        state.space_locked = True  
+        self.state.timer_stopped = True
+        self.state.space_locked = True  
         self.view.user_input.setReadOnly(True)
         self.view.text_label.setText("Drücke 'Reset' um neu zu starten.")
 
@@ -32,7 +32,7 @@ class Timer(QTimer):
         elif self.time_left > 0 and self.time_left < 10:
             self.view.timer_label.setText(f"0:0{str(self.time_left)}")
         elif self.time_left <= 0:
-            self.stop_timer(self.state)
+            self.stop_timer()
             self.view.timer_label.setText("0:00")
             dialog = ResultDialog(self.state)
             result = dialog.exec()

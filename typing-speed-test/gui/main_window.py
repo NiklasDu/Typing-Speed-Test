@@ -16,11 +16,12 @@ class MainWindow(QMainWindow):
     def __init__(self, state):
         super().__init__()
 
-        self.state = state
         self.timer = Timer(self, state)
-        self.game_logic = GameLogic(self, self.timer)
-        self.view_helper = ViewHelper(self)
+        self.game_logic = GameLogic(self, self.timer, state)
+        self.view_helper = ViewHelper(self, state)
         self.db_handler = DBHandler()
+
+        self.state = state
         
         self.setWindowTitle("KeyTap")
         self.ui_setup()
@@ -97,7 +98,7 @@ class MainWindow(QMainWindow):
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
 
         self.user_input = SpaceDetectingLineEdit(view=self, parent=self, game_logic=self.game_logic, state=self.state)
-        self.user_input.textChanged.connect(lambda: self.game_logic.show_words(self.state))
+        self.user_input.textChanged.connect(self.game_logic.show_words)
         self.user_input.setObjectName("input")
         self.user_input.setPlaceholderText("Tippe die Wörter so schnell es geht ab...")
         self.user_input.setMaxLength(18)
@@ -105,22 +106,22 @@ class MainWindow(QMainWindow):
         self.user_input.setFixedHeight(50)
     
         self.generate_words_btn = QPushButton("Wörter generieren")
-        self.generate_words_btn.clicked.connect(lambda: self.game_logic.generate_words(self.state))
+        self.generate_words_btn.clicked.connect(self.game_logic.generate_words)
         self.generate_words_btn.setFixedWidth(200)
         self.generate_words_btn.setFixedHeight(50)
 
         self.restart_btn = QPushButton("Reset")
-        self.restart_btn.clicked.connect(lambda: self.game_logic.restart_game(self.state))
+        self.restart_btn.clicked.connect(self.game_logic.restart_game)
         self.restart_btn.setFixedWidth(200)
         self.restart_btn.setFixedHeight(50)
 
         self.statistic_btn = QPushButton("Statistiken")
-        self.statistic_btn.clicked.connect(lambda: self.view_helper.show_statistics(self.state))
+        self.statistic_btn.clicked.connect(self.view_helper.show_statistics)
         self.statistic_btn.setFixedWidth(150)
         self.statistic_btn.setFixedHeight(50)
 
         self.logout_btn = QPushButton("Ausloggen")
-        self.logout_btn.clicked.connect(lambda: self.view_helper.show_login(self.state, self.game_logic))
+        self.logout_btn.clicked.connect(lambda: self.view_helper.show_login(self.game_logic))
         self.logout_btn.setFixedWidth(150)
         self.logout_btn.setFixedHeight(50)
 
@@ -203,7 +204,7 @@ class MainWindow(QMainWindow):
         self.user_selector.setView(QListView())
 
         self.login_btn = QPushButton("Anmelden")
-        self.login_btn.clicked.connect(lambda: self.view_helper.login(self.state))
+        self.login_btn.clicked.connect(self.view_helper.login)
         self.login_btn.setFixedHeight(50)
         self.login_btn.setFixedWidth(200)
 
@@ -226,7 +227,7 @@ class MainWindow(QMainWindow):
         self.new_user_input.setFixedHeight(50)
 
         self.new_user_btn = QPushButton("Benutzer erstellen")
-        self.new_user_btn.clicked.connect(lambda: self.view_helper.add_user_and_login(self.state, self.db_handler))
+        self.new_user_btn.clicked.connect(lambda: self.view_helper.add_user_and_login(self.db_handler))
         self.new_user_btn.setFixedHeight(50)
         self.new_user_btn.setFixedWidth(250)
 
