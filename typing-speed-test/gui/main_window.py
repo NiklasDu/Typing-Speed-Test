@@ -16,9 +16,9 @@ class MainWindow(QMainWindow):
     def __init__(self, state):
         super().__init__()
 
-        self.timer = Timer(self)
         self.state = state
-        self.game_logic = GameLogic(self)
+        self.timer = Timer(self, state)
+        self.game_logic = GameLogic(self, self.timer)
         self.view_helper = ViewHelper(self)
         self.db_handler = DBHandler()
         
@@ -87,8 +87,7 @@ class MainWindow(QMainWindow):
         self.timer_label.setFixedHeight(50)
         self.timer_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(lambda: self.timer.update_timer(self.state))
+        self.timer.timeout.connect(self.timer.update_timer)
 
         self.text_label = QLabel("Klicke auf 'Wörter generieren' um zu starten.")
         self.text_label.setObjectName("text")
@@ -121,7 +120,7 @@ class MainWindow(QMainWindow):
         self.statistic_btn.setFixedHeight(50)
 
         self.logout_btn = QPushButton("Ausloggen")
-        self.logout_btn.clicked.connect(lambda: self.view_helper.show_login(self.state))
+        self.logout_btn.clicked.connect(lambda: self.view_helper.show_login(self.state, self.game_logic))
         self.logout_btn.setFixedWidth(150)
         self.logout_btn.setFixedHeight(50)
 
@@ -295,7 +294,7 @@ class MainWindow(QMainWindow):
             background: transparent;
         }}
         QComboBox::down-arrow {{
-            image: url(assets/down.png);
+            image: url(typing-speed-test/assets/down.png);
             width: 12px;
             height: 12px;
         }}

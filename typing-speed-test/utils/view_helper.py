@@ -10,17 +10,17 @@ class ViewHelper():
         
     def refresh_statistics(self, state):
         if state.first_time_open_stats == True:
-            stats_chart = WPMChart(FILEPATH, state.current_user)
-            self.view.layout_stats.addWidget(stats_chart)
-            self.view.layout_stats.addWidget(self.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+            self.stats_chart = WPMChart(FILEPATH, state.current_user)
+            self.view.layout_stats.addWidget(self.stats_chart)
+            self.view.layout_stats.addWidget(self.view.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
             
             state.first_time_open_stats = False
         else:
             self.view.layout_stats.removeWidget(self.stats_chart)
-            self.view.layout_stats.removeWidget(self.home_btn)   
-            stats_chart = WPMChart(FILEPATH, state.current_user)
-            self.view.layout_stats.addWidget(stats_chart)
-            self.view.layout_stats.addWidget(self.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
+            self.view.layout_stats.removeWidget(self.view.home_btn)   
+            self.stats_chart = WPMChart(FILEPATH, state.current_user)
+            self.view.layout_stats.addWidget(self.stats_chart)
+            self.view.layout_stats.addWidget(self.view.home_btn, alignment=Qt.AlignmentFlag.AlignHCenter)
 
     def show_statistics(self, state):
         self.refresh_statistics(state)
@@ -30,11 +30,11 @@ class ViewHelper():
         self.view.stacked_widget.setCurrentIndex(2)
         self.view.user_input.setFocus()
 
-    def show_login(self, state):
+    def show_login(self, state, game_logic):
         self.view.stacked_widget.setCurrentIndex(0)
         state.current_user = ""
 
-        self.restart_game(state)
+        game_logic.restart_game(state)
         
 
     def login(self, state):

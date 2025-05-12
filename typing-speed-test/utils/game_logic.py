@@ -3,9 +3,9 @@ from utils.timer import Timer
 import random
 
 class GameLogic():
-    def __init__(self, view):
+    def __init__(self, view, timer):
         self.view = view
-        self.timer = Timer(view)
+        self.timer = timer
 
     def restart_game(self, state):
         state.current_word_list = []
@@ -21,7 +21,7 @@ class GameLogic():
         state.space_locked = True
         state.current_wpm = 0
 
-        self.timer.stop_timer()
+        self.timer.stop_timer(state)
 
         self.view.timer_label.setText("1:00")
         self.view.generate_words_btn.setEnabled(True) 
