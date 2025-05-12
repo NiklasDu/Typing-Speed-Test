@@ -24,6 +24,6 @@ Ob zum Trainieren, Vergleichen oder einfach aus Spaß – hier kommt dein neues 
 
 ## 📷 Vorschau
 
-![Screenshot der App](assets/screenshot_app.png)
+![Screenshot der App](typing-speed-test/assets/screenshot_app.png)
 
 ---
