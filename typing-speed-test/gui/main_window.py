@@ -2,7 +2,7 @@
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (QWidget, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
                              QHBoxLayout, QStackedWidget, QComboBox, QListView, QFrame)
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QFontDatabase
 from utils.gui_helper import *
 from constants import *
 from utils.timer import Timer
@@ -15,6 +15,9 @@ from utils.db_handler import DBHandler
 class MainWindow(QMainWindow):
     def __init__(self, state):
         super().__init__()
+
+        QFontDatabase.addApplicationFont("fonts/Roboto-Regular.ttf")
+        QFontDatabase.addApplicationFont("fonts/Roboto-Bold.ttf")
 
         self.timer = Timer(self, state)
         self.game_logic = GameLogic(self, self.timer, state)
@@ -29,7 +32,8 @@ class MainWindow(QMainWindow):
         
     def ui_setup(self):
 
-        self.title_label = QLabel(f"Hallo {self.state.current_user}, starte jetzt mit deinem Test!")
+        self.title_label = QLabel(f"Hallo {self.state.current_user},\nstarte jetzt mit deinem Test!")
+        self.title_label.setWordWrap(True)
         self.title_label.setObjectName("title")
         self.title_label.setFixedHeight(50)
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
@@ -138,12 +142,13 @@ class MainWindow(QMainWindow):
         layout_two.addWidget(self.words_wrong_label)
         layout.addLayout(layout_two)
         layout_three = QHBoxLayout()
-        layout_three.addWidget(self.keystrokes_name)
-        layout_three.addWidget(self.keystrokes_label)
-        layout_three.addWidget(self.wpm_count_name)
-        layout_three.addWidget(self.wpm_count_label)
         layout_three.addWidget(self.timer_name)
         layout_three.addWidget(self.timer_label)
+        layout_three.addWidget(self.wpm_count_name)
+        layout_three.addWidget(self.wpm_count_label)
+        layout_three.addWidget(self.keystrokes_name)
+        layout_three.addWidget(self.keystrokes_label)
+
         layout.addLayout(layout_three)
         layout.addWidget(self.text_label)
         layout.addWidget(self.user_input, alignment=Qt.AlignmentFlag.AlignHCenter)
@@ -266,7 +271,7 @@ class MainWindow(QMainWindow):
         QWidget {{
             background-color: {BACKGROUND_COLOR};
             color: {TEXT_COLOR};
-            font-family: Roboto;
+            font-family: 'Roboto'; 
             font-size: 15px;
         }}
         QPushButton {{
@@ -276,12 +281,12 @@ class MainWindow(QMainWindow):
             padding: 8px;
         }}
         QComboBox {{
-        border: 1px solid {BORDER_COLOR};
-        border-radius: 6px;
-        padding: 6px 24px 6px 8px;
-        background-color: #f8f9fa;
-        color: #2E3440;
-        font-size: 14px;
+            border: 1px solid {BORDER_COLOR};
+            border-radius: 6px;
+            padding: 6px 24px 6px 8px;
+            background-color: #f8f9fa;
+            color: #2E3440;
+            font-size: 14px;
         }}
         QComboBox:hover {{
             border: 1px solid #5E81AC;
@@ -335,7 +340,9 @@ class MainWindow(QMainWindow):
             background: {INPUT_BACKGROUND};
         }}
         QLabel#title, QLabel#title_stats, QLabel#title_login {{
-            font-size: 25px;
+            font-family: 'Roboto'; 
+            font-weight: bold;
+            font-size: 20px;
         }}
         QLabel#text {{
             font-size: 25px;
@@ -345,17 +352,17 @@ class MainWindow(QMainWindow):
         }}
         QLabel#timer, QLabel#timer_name, QLabel#words_name, QLabel#words_label, QLabel#correct_name, QLabel#correct_label,
         QLabel#wrong_name, QLabel#wrong_label, QLabel#keystrokes_name, QLabel#keystrokes_label, QLabel#wpm_label QLabel#wpm_name {{
-            font-size: 16px;
+            font-size: 18px;
         }}
         QLabel#new_user_label {{
             font-size: 18px;
             margin-top: 20px;
         }}
         QLabel#correct_label {{
-            color: #388E3C
+            color: {CORRECT_TEXT}
         }}
         QLabel#wrong_label {{
-            color: #D32F2F
+            color: {WRONG_TEXT}
         }}
         """)
 

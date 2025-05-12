@@ -2,6 +2,19 @@ from constants import *
 import random
 
 class GameLogic():
+    """
+    Verwaltet die Logik.
+
+    Methoden:
+        restart_game: Setzt das Spiel zurück.
+        generate_words: Erstellt eine neue Liste an Zufallswörtern.
+        show_words: Zeigt Wörter an und startet den Timer.
+        check_word:
+        check_full_word:
+        highlight_grey:
+        highlight_green:
+        highlight_red:
+    """
     def __init__(self, view, timer,  state):
         self.view = view
         self.timer = timer

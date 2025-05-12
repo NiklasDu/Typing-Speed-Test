@@ -93,7 +93,8 @@ class ResultDialog(QDialog):
         correct_result.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         wrong_result = QLabel(f"Falsche Wörter: {self.state.current_word_count_wrong}")
         wrong_result.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
-        wpm_count = QLabel(f"Wörter pro Minute: {self.state.current_keystroke_count / 5}")
+        wpm_count = QLabel(f"WPM: {self.state.current_wpm}")
+        wpm_count.setObjectName("wpm_result")
         wpm_count.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         
         # Buttons
@@ -105,9 +106,9 @@ class ResultDialog(QDialog):
 
         # Layouts
         layout = QVBoxLayout()
+        layout.addWidget(wpm_count)
         layout.addWidget(correct_result)
         layout.addWidget(wrong_result)
-        layout.addWidget(wpm_count)
 
         button_layout = QHBoxLayout()
         button_layout.addWidget(save_btn)
@@ -140,6 +141,10 @@ class ResultDialog(QDialog):
         QLabel {{
             font-size: 14px;
             padding: 5px;
+        }}
+        QLabel#wpm_result {{
+            font-size: 20px;
+            color: {CORRECT_TEXT}
         }}
         """)
 

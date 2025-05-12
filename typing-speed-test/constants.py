@@ -7,11 +7,13 @@ BUTTON_TEXT_COLOR      = "#FFFFFF"  # Weiß – klassisch und kontrastreich
 BUTTON_PRESSED_COLOR   = "#4C6A92"  # Wenn Button gedrückt wird
 INPUT_BACKGROUND       = "#E5E9F0"  # Sanftes Hellgrau-Blau – ideal für Eingabefelder
 HIGHLIGHT_COLOR        = "#81A1C1"  # Helleres Blau – z. B. für Hover-Zustände
-CLICKED_COLOR          = "#4C6A92"  # # Wenn Button gedrückt wird
+CLICKED_COLOR          = "#4C6A92"  # Wenn Button gedrückt wird
 BORDER_COLOR           = "#D8DEE9"  # Weiches Grau-Blau für unaufdringliche Rahmen
 WORD_HIGHLIGHT         = "#E0E0E0"  # Für noch nicht geprüfte oder aktuelle Wörter
 CORRECT_HIGHLIGHT      = "#C8E6C9"  # Für korrekt geschriebene Wörter
 WRONG_HIGHLIGHT        = "#FFCDD2"  # Für falsch geschriebene Wörter
+CORRECT_TEXT           = "#388E3C"  # Für den Text mit Anzahl an richtigen Wörtern und WPM Result
+WRONG_TEXT             = "#D32F2F"  # Für den Text mit Anzahl an falschen Wörtern
 
 WOERTER = [
     "und", "oder", "aber", "weil", "denn", "dass", "damit", "wenn", "ob", "auch",

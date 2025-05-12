@@ -55,5 +55,7 @@ app.exec()
         # TODO: Timer und WPM laufen wieder 
         # TODO: Beim erneuten Start geht leerzeile nicht mehr zum nächsten Wort.
         # TODO: lambda entfernen und in jeder Klasse state referenzieren
+# TODO: Result Anzeige WPM ganz groß oben in Grün anzeigen.
 
 # TODO: Alles dokumentieren im Code.
+# TODO: Todos entfernen.
