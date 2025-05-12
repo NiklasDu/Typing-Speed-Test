@@ -57,7 +57,8 @@ class GameLogic():
         else:
             if self.timer.time_left != 60 and self.timer.time_left != 0:
                 current_wpm = round((state.current_keystroke_count / 5) * (60 / (60 - self.timer.time_left)), 2)
-                self.view.wpm_count_label.setText(str(current_wpm))
+                state.current_wpm = current_wpm
+                self.view.wpm_count_label.setText(str(state.current_wpm))
 
         for word in state.current_word_list[state.current_word:]:
                 state.current_text = state.current_text + word
@@ -65,7 +66,7 @@ class GameLogic():
         self.check_word(state)
 
     def check_word(self, state):
-        if state.reset_happend == False:
+        if not state.reset_happend:
             state.current_keystroke_count += 1
             self.view.keystrokes_label.setText(str(state.current_keystroke_count))
 

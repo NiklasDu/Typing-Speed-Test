@@ -63,9 +63,9 @@ class ViewHelper():
         self.refresh_statistics(state)
 
     def update_user_combobox(self):
-        self.user_selector.clear()
+        self.view.user_selector.clear()
         if os.path.exists(FILEPATH_USER):
             with open(FILEPATH_USER, "r") as file:
                 data = json.load(file)
                 usernames = [user["user"] for user in data]
-                self.user_selector.addItems(usernames)
+                self.view.user_selector.addItems(usernames)

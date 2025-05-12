@@ -1,11 +1,8 @@
 # -------------- Imports ------------- #
 from constants import *
-from PyQt6.QtCore import QSize, Qt, QTimer
-from PyQt6.QtWidgets import (QApplication, QDialog, QWidget, 
-                             QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
-                             QHBoxLayout, QStackedWidget, QSplashScreen, 
-                             QComboBox, QListView, QFrame)
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtWidgets import (QDialog, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
+                             QHBoxLayout, QSplashScreen)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from collections import defaultdict
@@ -67,23 +64,29 @@ class SpaceDetectingLineEdit(QLineEdit):
         self.state = state
 
     def keyPressEvent(self, event):
-        if self.view.state.space_locked == False:
+        if not self.view.state.space_locked:
+            print("0")
             if event.key() == Qt.Key.Key_Space:
-                if self.view.state.timer_stopped == False:
-                    if self.view.state.first_space == True:
-                        self.state.current_keystroke_count -= 1
-                    else:
-                        self.state.current_keystroke_count -= 2
-                    if not self.view.state.first_space:
-                        self.game_logic.check_full_word(self.state)
-                        self.state.current_word = self.state.current_word + 1
-                        self.view.user_input.clear()
-                    
+                print("1")
+                # if not self.view.state.timer_stopped:
+                #     print("2")
+                if self.view.state.first_space:
+                    self.state.current_keystroke_count -= 1
+                    if self.state.current_keystroke_count < 0:
+                        self.state.current_keystroke_count = 0
+                else:
+                    print("4")
+                    self.state.current_keystroke_count -= 2
+                    self.game_logic.check_full_word(self.state)
+                    self.state.current_word = self.state.current_word + 1
+                    self.view.user_input.clear()
+                    print("5")
                     self.game_logic.show_words(self.state)
-            
+            print("6")
             super().keyPressEvent(event)  # wichtig, damit der Text trotzdem erscheint
         else:
-            pass # Falls space_locked aktiv ist, keine Aktion
+            print("7")
+            # pass # Falls space_locked aktiv ist, keine Aktion
 
 # ------------------------------- Result Window ------------------------------- #
 

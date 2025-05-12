@@ -12,12 +12,10 @@ class Timer(QTimer):
         self.state = state
 
     def start_timer(self):
-        print("Timer gestartet")
         self.time_left = 60
         self.start(1000)
     
     def stop_timer(self, state):
-        print("Timer gestoppt.")
         self.stop()
         self.time_left = 60
         state.timer_stopped = True
@@ -41,9 +39,7 @@ class Timer(QTimer):
             if result == QDialog.DialogCode.Accepted:
                 number_to_make_saving_possible = self.state.current_word_count_total * 0.75
                 if self.state.current_word_count_correct >= number_to_make_saving_possible:
-                    final_wpm = self.state.current_keystroke_count / 5
-                    print(f"{final_wpm}")
-                    self.db_handler.save_result(final_wpm, self.state.current_keystroke_count, 
+                    self.db_handler.save_result(self.state.current_wpm, self.state.current_keystroke_count, 
                                                 self.state.current_word_count_total, self.state.current_word_count_correct, 
                                                 self.state.current_word_count_wrong, self.state.current_user)
             else:
