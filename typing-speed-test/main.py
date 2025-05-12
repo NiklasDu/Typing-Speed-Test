@@ -20,9 +20,7 @@ window = MainWindow(state)
 
 QTimer.singleShot(1500, window.show)
 
-
 app.exec()
-
 
 # ------------------------------- To Do's ----------------------------------- #
 
@@ -57,4 +55,5 @@ app.exec()
         # TODO: Timer und WPM laufen wieder 
         # TODO: Beim erneuten Start geht leerzeile nicht mehr zum nächsten Wort.
         # TODO: lambda entfernen und in jeder Klasse state referenzieren
-# TODO: 
+
+# TODO: Alles dokumentieren im Code.

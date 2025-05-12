@@ -25,7 +25,6 @@ class WPMChart(FigureCanvas):
             data = json.load(f)
 
         print(user)
-
         # Berechne die höchsten WPM pro Tag
         wpm_per_day = defaultdict(float)
         for entry in data:
@@ -34,11 +33,9 @@ class WPMChart(FigureCanvas):
                 wpm = entry["wpm"]
                 if wpm > wpm_per_day[date]:
                     wpm_per_day[date] = wpm
-
         # Sortiere nach Datum
         sorted_dates = sorted(wpm_per_day.keys(), key=lambda d: datetime.strptime(d, "%Y-%m-%d"))
         sorted_wpm = [wpm_per_day[date] for date in sorted_dates]
-
         # Zeichne das Diagramm
         self.ax.clear()
         self.ax.plot(sorted_dates, sorted_wpm, marker='o', color=f'{BUTTON_BACKGROUND}')
@@ -99,7 +96,6 @@ class ResultDialog(QDialog):
         wpm_count = QLabel(f"Wörter pro Minute: {self.state.current_keystroke_count / 5}")
         wpm_count.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         
-
         # Buttons
         save_btn = QPushButton("Speichern")
         close_btn = QPushButton("Abbrechen")

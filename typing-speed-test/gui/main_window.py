@@ -1,5 +1,5 @@
 # ----------------- Imports ----------------- #
-from PyQt6.QtCore import QSize, Qt, QTimer
+from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (QWidget, QMainWindow, QPushButton, QLabel, QLineEdit, QVBoxLayout, 
                              QHBoxLayout, QStackedWidget, QComboBox, QListView, QFrame)
 from PyQt6.QtGui import QPixmap

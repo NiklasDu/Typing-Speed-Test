@@ -1,5 +1,4 @@
 from constants import *
-from utils.timer import Timer
 import random
 
 class GameLogic():

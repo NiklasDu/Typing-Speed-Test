@@ -13,7 +13,6 @@ WORD_HIGHLIGHT         = "#E0E0E0"  # Für noch nicht geprüfte oder aktuelle W�
 CORRECT_HIGHLIGHT      = "#C8E6C9"  # Für korrekt geschriebene Wörter
 WRONG_HIGHLIGHT        = "#FFCDD2"  # Für falsch geschriebene Wörter
 
-
 WOERTER = [
     "und", "oder", "aber", "weil", "denn", "dass", "damit", "wenn", "ob", "auch",
     "es", "ist", "war", "sein", "haben", "werden", "kann", "muss", "soll", "dürfen",
